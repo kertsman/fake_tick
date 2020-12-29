@@ -1,0 +1,150 @@
+
+<!doctype html>
+<html>
+<head>
+  <script type="text/javascript" src="jquery.js"></script>
+
+  <style>
+    body{ background-color: ivory; }
+  </style>
+
+  <script>
+
+    $(function(){
+
+
+      function readURL(input) {
+        if (input.files && input.files[0] && input.files[0].type && input.files[0].type.indexOf('image')!== -1) {
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+            // REGION  START EXPERIMEnT
+            var canvas=document.getElementById("canvas");
+            var ctx=canvas.getContext("2d");
+
+            let img = new Image();
+            img.src = "img/tick.png";
+            img.onload = function(){
+              ctx.drawImage(img, 0, 0, 20, 20);
+            };
+
+            let base_image = new Image();
+            base_image.src = e.target.result;
+            base_image.onload = function(){
+              // base_image.style.width = '50%';
+              // base_image.style.height = 'auto';
+              canvas.width = base_image.width;
+              canvas.height = base_image.height;
+              ctx.drawImage(base_image, 0, 0 );
+            };
+
+            canvas.width = base_image.width;
+            canvas.height = base_image.height;
+
+            var canvasOffset=$("#canvas").offset();
+            var offsetX=canvasOffset.left;
+            var offsetY=canvasOffset.top;
+            var canvasWidth=canvas.width;
+            var canvasHeight=canvas.height;
+            var isDragging=false;
+
+            function handleMouseDown(e){
+              console.log('handleMouseDown')
+              canMouseX=parseInt(e.clientX-offsetX);
+              canMouseY=parseInt(e.clientY-offsetY);
+              // set the drag flag
+              isDragging=true;
+            }
+
+            function handleMouseUp(e){
+              console.log('handleMouseUp')
+              canMouseX=parseInt(e.clientX-offsetX);
+              canMouseY=parseInt(e.clientY-offsetY);
+              // clear the drag flag
+              isDragging=false;
+            }
+
+            function handleMouseOut(e){
+              canMouseX=parseInt(e.clientX-offsetX);
+              canMouseY=parseInt(e.clientY-offsetY);
+              // user has left the canvas, so clear the drag flag
+              //isDragging=false;
+            }
+
+            function handleMouseMove(e){
+              console.log('handleMouseMove', isDragging);
+              // canMouseX=parseInt(e.clientX-offsetX);
+              // canMouseY=parseInt(e.clientY-offsetY);
+              // canMouseX=parseInt(e.clientX);
+              // canMouseY=parseInt(e.clientY);
+              canMouseX = e.offsetX;
+              canMouseY = e.offsetY;
+              // if the drag flag is set, clear the canvas and draw the image
+              if(isDragging){
+                ctx.clearRect(0,0,canvasWidth,canvasHeight);
+                ctx.drawImage(base_image, 0, 0);
+                ctx.drawImage(img,canMouseX,canMouseY,20, 20);
+              }
+            }
+
+            function tap(e) {
+              ctx.clearRect(0,0,canvasWidth,canvasHeight);
+              ctx.drawImage(base_image, 0, 0);
+              console.log('e.offsetX ', e.offsetX, ' img.clientWidth' , img.clientWidth, img.clientHeight)
+              ctx.drawImage(img,e.offsetX - img.clientWidth / 2, e.offsetY - img.clientHeight / 2,20, 20);
+            }
+
+
+
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+              $("#canvas").mousedown(function(e){tap(e);});
+              console.log('mobile')
+            } else {
+              console.log('browser');
+              $("#canvas").mousedown(function(e){handleMouseDown(e);});
+              $("#canvas").mousemove(function(e){handleMouseMove(e);});
+              $("#canvas").mouseup(function(e){handleMouseUp(e);});
+              $("#canvas").mouseout(function(e){handleMouseOut(e);});
+            }
+            // REGION  END EXPERIMEnT
+          }
+
+          reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+      }
+
+      $("#imgInp").change(function() {
+        readURL(this);
+      });
+    }); // end $(function(){});
+    download_img = function(el) {
+      debugger;
+      var canvas=document.getElementById("canvas");
+      var image = canvas.toDataURL("image/jpg");
+      el.href = image;
+    };
+  </script>
+
+</head>
+
+<body>
+<form runat="server">
+  <div>ИНСТРУКЦИЯ :</div>
+  <ul>
+    <li>Добавте Бюллетень:</li>
+    <li>Зажмите картинку и подвигайте мышкой </li>
+    <li>Поместите галочку в нужном месте </li>
+    <li>Скачайте "обновлённый" бюллетень </li>
+
+  </ul>
+  <br/>
+  <div>Добавить Бюллетень: </div>
+
+  <input type='file' id="imgInp" />
+  <!--    <img id="blah" src="#" alt="your image" />-->
+</form>
+<canvas id="canvas" width=400 height=300></canvas>
+<br/>
+<a id="download" href="javascript:void(0)" download="myImage.jpg" onclick="download_img(this);">Скачать обновлённый бюллетень</a>
+</body>
+</html>

@@ -1,0 +1,27 @@
+div.sticky {
+    position: fixed;
+    bottom: 0;
+    background-color: yellow;
+    height: 50px;
+    min-width: 100vw;
+}
+.prl {
+    position: sticky;
+    top: 0;
+}
+
+
+.stick {
+
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+    background: grey;
+}
+
+.control-pannel {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
