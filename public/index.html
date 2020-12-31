@@ -23,7 +23,8 @@
             var ctx=canvas.getContext("2d");
 
             let img = new Image();
-            img.src = "img/tick.png";
+            let idOfCheck = Math.floor(Math.random() * (15 - 1)) + 1;
+            img.src = 'img/check_mark_' + idOfCheck +'.png';
             img.onload = function(){
               ctx.drawImage(img, 0, 0, 20, 20);
             };

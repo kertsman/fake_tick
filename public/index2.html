@@ -7,10 +7,12 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="css/customStyles.css">
+    <link rel="stylesheet" href="css/slider.css">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+
 
 
     <style>
@@ -34,9 +36,9 @@
 
                         let img = new Image();
                         let checkSize = 20;
-                        let idOfCheck = Math.floor(Math.random() * (4 - 1)) + 1;
-                        // img.src = 'img/check_mark_' + idOfCheck +'.png';
-                        img.src = 'img/check_mark_1.png';
+                        let idOfCheck = Math.floor(Math.random() * (15 - 1)) + 1;
+                        img.src = 'img/check_mark_' + idOfCheck +'.png';
+                        // img.src = 'img/check_mark_3.png';
                         img.onload = function(){
                             drawCheck();
                         };
@@ -44,12 +46,12 @@
                         let base_image = new Image();
                         base_image.src = e.target.result;
                         base_image.onload = function(){
-                            // base_image.style.width = '50%';
-                            // base_image.style.height = 'auto';
-                            let proportion =  base_image.width / base_image.height;
-                            canvas.width = window.outerWidth;
-                            canvas.height = window.outerWidth / proportion;
-                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  window.outerWidth, canvas.height );
+                            canvas.height = base_image.height;
+                            canvas.width = base_image.width;
+                            // let proportion =  base_image.width / base_image.height;
+                            // canvas.width = window.outerWidth;
+                            // canvas.height = window.outerWidth / proportion;
+                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height );
                         };
 
                         // canvas.width = window.outerWidth;
@@ -90,42 +92,48 @@
                             lastMouseCoordsY = e.offsetY;
                             // if the drag flag is set, clear the canvas and draw the image
                             if(isDragging){
-                                drawFrame();
+                                drawBaseImage();
                             }
                         }
 
                         function tap(e) {
                             ctx.clearRect(0,0,canvasWidth,canvasHeight);
-                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  window.outerWidth, canvas.height);
-                            console.log('e.offsetX ', e.offsetX, ' img.clientWidth' , img.clientWidth, img.clientHeight);
+                            // ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
+                            drawBaseImage();
                             lastMouseCoordsY = e.offsetY - img.clientHeight / 2;
                             lastMouseCoordsX = e.offsetX - img.clientWidth / 2;
-                            ctx.drawImage(img, lastMouseCoordsX, lastMouseCoordsY, checkSize, checkSize);
+                            // ctx.drawImage(img, lastMouseCoordsX, lastMouseCoordsY, checkSize, checkSize);
+                            drawCheck(lastMouseCoordsX, lastMouseCoordsY);
+
                         }
 
-                        function drawCheck(){
-                            ctx.drawImage(img, 0, 0, checkSize, checkSize);
+                        function drawCheck(x=0, y=0){
+                            ctx.drawImage(img, x, y, checkSize, checkSize);
                         }
 
-                        function drawFrame(){
+                        function drawBaseImage(){
                             ctx.clearRect(0,0,canvasWidth,canvasHeight);
-                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  window.outerWidth, canvas.height);
-                            img.style.transform = 'rotate(90deg)';
-                            img.translate.valueOf(12);
-                            ctx.drawImage(img,lastMouseCoordsX,lastMouseCoordsY,checkSize, checkSize);
+                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
+                            // img.style.transform = 'rotate(90deg)';
+                            // img.translate.valueOf(12);
+                            // ctx.drawImage(img,lastMouseCoordsX,lastMouseCoordsY,checkSize, checkSize);
+                        }
+                        function redrawFrame(){
+                            drawBaseImage();
+                            drawCheck(lastMouseCoordsX, lastMouseCoordsY);
                         }
 
                         function makeCheckBigger() {
                             checkSize += 5;
-                            drawFrame();
+                            redrawFrame();
                         }
                         function makeCheckSmallerr() {
                             checkSize > 5 ? checkSize -= 5 : checkSize = 5;
-                            drawFrame();
+                            redrawFrame();
                         }
                         function rotateCheckLeft() {
                             checkSize > 5 ? checkSize -= 5 : checkSize = 5;
-                            drawFrame();
+                            drawBaseImage();
                         }
 
                         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -139,20 +147,29 @@
                         }
                         document.getElementById('makeBigger').onclick = makeCheckBigger;
                         document.getElementById('makeSmaller').onclick = makeCheckSmallerr;
+                        document.getElementById('back').onclick = toggleSlider;
+
                         // REGION  END EXPERIMEnT
                     }
 
                     reader.readAsDataURL(input.files[0]); // convert to base64 string
                 }
             }
-
+            function toggleSlider(){
+                $('.first').toggleClass('animate');
+                $('.second').toggleClass('animate');
+            }
             $("#imgInp").change(function() {
+                toggleSlider();
                 readURL(this);
             });
         }); // end $(function(){});
         download_img = function(el) {
             var canvas=document.getElementById("canvas");
-            var image = canvas.toDataURL("image/jpg");
+
+            // canvas.height = '1280px';
+            // canvas.width = '1920px';
+            const image = canvas.toDataURL("image/jpg");
             el.href = image;
         };
     </script>
@@ -162,23 +179,61 @@
 <body>
 
 <div class="container-fluid">
-    <div class="row">
-        <form runat="server">
-            <input type='file' id="imgInp" />
-        </form>
-        <canvas id="canvas" width=400 height=300></canvas>
-        <a id="download" download="myImage.jpg" onclick="download_img(this);">Download to myImage.jpg</a>
+<!--    <div class="row">-->
+<!--        <form runat="server">-->
+<!--            <input type='file' id="imgInp" />-->
+<!--        </form>-->
+<!--        <canvas id="canvas" width=400 height=300></canvas>-->
+<!--        <a id="download" download="myImage.jpg" onclick="download_img(this);">Download to myImage.jpg</a>-->
+<!--    </div>-->
+
+    <div class="content">
+        <div style="display: flex; justify-content: space-between">
+            <span id="back">НАЗАД</span>
+        </div>
+        <div class="first" style="display: flex;
+  justify-content: center;
+  align-items: center;">
+            <div>
+                <h3>Выберите Фотографию биллютеня</h3>
+                <form runat="server">
+                    <input type='file' id="imgInp" />
+                </form>
+            </div>
+
+        </div>
+        <div class="second">
+            <div style="overflow-y: auto; width: 90vw; height: 50%">
+                <canvas id="canvas" width=400 height=300></canvas>
+            </div>
+
+            <h4>ИНСТРУКЦИЯ :</h4>
+
+                <div style="text-align: left">
+                    <span>👇 Нажмите в точку на картинке, в которую хотите поставить галочку (картинку можно скролить)</span>
+                </div>
+            <br>
+            <div style="text-align: left">
+                <span> 👁‍Проверьте размер галочки (поменять размиер или саму галочку можно в жёлтом блоке внизу)</span>
+            </div>
+            <br>
+                <div style="text-align: left">
+                    <span>✔Скачайте "обновлённый" бюллетень</span>
+                </div>
+            <a id="download" class="btn btn-primary" download="myImage.jpg" onclick="download_img(this);">Скачать</a>
+
+            <div class="sticky control-pannel">
+                <div id="makeBigger"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-plus-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                </svg></div>
+                <div id="makeSmaller"><svg  width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-dash-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
+                </svg></div>
+            </div>
+        </div>
     </div>
 
 </div>
-<div style="height: 50px"></div>
-<div class="sticky control-pannel">
-    <div id="makeBigger"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-plus-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-    </svg></div>
-    <div id="makeSmaller"><svg  width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-dash-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
-    </svg></div>
-</div>
+
 </body>
 </html>
