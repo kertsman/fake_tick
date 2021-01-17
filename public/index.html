@@ -74,10 +74,6 @@
 
             function handleMouseMove(e){
               console.log('handleMouseMove', isDragging);
-              // canMouseX=parseInt(e.clientX-offsetX);
-              // canMouseY=parseInt(e.clientY-offsetY);
-              // canMouseX=parseInt(e.clientX);
-              // canMouseY=parseInt(e.clientY);
               canMouseX = e.offsetX;
               canMouseY = e.offsetY;
               // if the drag flag is set, clear the canvas and draw the image
@@ -91,7 +87,6 @@
             function tap(e) {
               ctx.clearRect(0,0,canvasWidth,canvasHeight);
               ctx.drawImage(base_image, 0, 0);
-              console.log('e.offsetX ', e.offsetX, ' img.clientWidth' , img.clientWidth, img.clientHeight)
               ctx.drawImage(img,e.offsetX - img.clientWidth / 2, e.offsetY - img.clientHeight / 2,20, 20);
             }
 
@@ -108,8 +103,7 @@
               $("#canvas").mouseout(function(e){handleMouseOut(e);});
             }
             // REGION  END EXPERIMEnT
-          }
-
+          };
           reader.readAsDataURL(input.files[0]); // convert to base64 string
         }
       }
@@ -117,11 +111,10 @@
       $("#imgInp").change(function() {
         readURL(this);
       });
-    }); // end $(function(){});
+    });
     download_img = function(el) {
-      debugger;
-      var canvas=document.getElementById("canvas");
-      var image = canvas.toDataURL("image/jpg");
+      let canvas=document.getElementById("canvas");
+      let image = canvas.toDataURL("image/jpg");
       el.href = image;
     };
   </script>

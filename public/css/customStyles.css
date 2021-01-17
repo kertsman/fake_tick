@@ -12,7 +12,6 @@ div.sticky {
 
 
 .stick {
-
     display: block;
     text-align: center;
     margin: 0 auto;
@@ -22,6 +21,7 @@ div.sticky {
 .control-pannel {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: start;
     align-items: center;
+    column-gap: 10px;
 }

@@ -20,158 +20,173 @@
     </style>
 
     <script>
-
         $(function(){
+            function goToWorkWithCanvasState(input) {
+                if (!input.files || !input.files[0] || !input.files[0].type || input.files[0].type.indexOf('image')=== -1) { return; }
+                let base_image;
+                let img;
+                let canvas=document.getElementById("canvas");
+                let ctx;
+                let proportion;
+                let deformationRate;
+                const reader = new FileReader();
+                reader.onload = userInsertedBulletin;
+                reader.readAsDataURL(input.files[0]); // convert to base64 string
+                function userInsertedBulletin(e) {
+                    // REGION  START EXPERIMEnT
+                    canvas=document.getElementById("canvas");
+                    ctx=canvas.getContext("2d");
 
+                    img = new Image();
+                    let checkSize = 20;
+                    intCheckMarkSrc();
+                    base_image = new Image();
+                    base_image.src = e.target.result;
+                    base_image.onload = function(){
+                        canvas.height = base_image.height;
+                        canvas.width = base_image.width;
 
-            function readURL(input) {
-                if (input.files && input.files[0] && input.files[0].type && input.files[0].type.indexOf('image')!== -1) {
-                    var reader = new FileReader();
+                        drawBaseImage();
+                    };
 
-                    reader.onload = function(e) {
+                    let canvasOffset=$("#canvas").offset();
+                    let offsetX=canvasOffset.left;
+                    let offsetY=canvasOffset.top;
+                    let canvasWidth=canvas.width;
+                    let canvasHeight=canvas.height;
+                    let isDragging=false;
+                    let lastMouseCoordsX = 0;
+                    let lastMouseCoordsY = 0;
 
-                        // REGION  START EXPERIMEnT
-                        var canvas=document.getElementById("canvas");
-                        var ctx=canvas.getContext("2d");
-
-                        let img = new Image();
-                        let checkSize = 20;
-                        let idOfCheck = Math.floor(Math.random() * (15 - 1)) + 1;
-                        img.src = 'img/check_mark_' + idOfCheck +'.png';
-                        // img.src = 'img/check_mark_3.png';
-                        img.onload = function(){
-                            drawCheck();
-                        };
-
-                        let base_image = new Image();
-                        base_image.src = e.target.result;
-                        base_image.onload = function(){
-                            canvas.height = base_image.height;
-                            canvas.width = base_image.width;
-                            // let proportion =  base_image.width / base_image.height;
-                            // canvas.width = window.outerWidth;
-                            // canvas.height = window.outerWidth / proportion;
-                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height );
-                        };
-
-                        // canvas.width = window.outerWidth;
-                        // canvas.height = window.outerHeight;
-
-                        var canvasOffset=$("#canvas").offset();
-                        var offsetX=canvasOffset.left;
-                        var offsetY=canvasOffset.top;
-                        var canvasWidth=canvas.width;
-                        var canvasHeight=canvas.height;
-                        var isDragging=false;
-                        let lastMouseCoordsX = 0;
-                        let lastMouseCoordsY = 0;
-
-                        function handleMouseDown(e){
-                            // set the drag flag
-                            isDragging=true;
-                        }
-
-                        function handleMouseUp(e){
-                            isDragging=false;
-                        }
-
-                        function handleMouseOut(e){
-                            canMouseX=parseInt(e.clientX-offsetX);
-                            canMouseY=parseInt(e.clientY-offsetY);
-                            // user has left the canvas, so clear the drag flag
-                            //isDragging=false;
-                        }
-
-                        function handleMouseMove(e){
-                            console.log('handleMouseMove', isDragging);
-                            // canMouseX=parseInt(e.clientX-offsetX);
-                            // canMouseY=parseInt(e.clientY-offsetY);
-                            // canMouseX=parseInt(e.clientX);
-                            // canMouseY=parseInt(e.clientY);
-                            lastMouseCoordsX = e.offsetX;
-                            lastMouseCoordsY = e.offsetY;
-                            // if the drag flag is set, clear the canvas and draw the image
-                            if(isDragging){
-                                drawBaseImage();
-                            }
-                        }
-
-                        function tap(e) {
-                            ctx.clearRect(0,0,canvasWidth,canvasHeight);
-                            // ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
-                            drawBaseImage();
-                            lastMouseCoordsY = e.offsetY - img.clientHeight / 2;
-                            lastMouseCoordsX = e.offsetX - img.clientWidth / 2;
-                            // ctx.drawImage(img, lastMouseCoordsX, lastMouseCoordsY, checkSize, checkSize);
-                            drawCheck(lastMouseCoordsX, lastMouseCoordsY);
-
-                        }
-
-                        function drawCheck(x=0, y=0){
-                            ctx.drawImage(img, x, y, checkSize, checkSize);
-                        }
-
-                        function drawBaseImage(){
-                            ctx.clearRect(0,0,canvasWidth,canvasHeight);
-                            ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
-                            // img.style.transform = 'rotate(90deg)';
-                            // img.translate.valueOf(12);
-                            // ctx.drawImage(img,lastMouseCoordsX,lastMouseCoordsY,checkSize, checkSize);
-                        }
-                        function redrawFrame(){
-                            drawBaseImage();
-                            drawCheck(lastMouseCoordsX, lastMouseCoordsY);
-                        }
-
-                        function makeCheckBigger() {
-                            checkSize += 5;
-                            redrawFrame();
-                        }
-                        function makeCheckSmallerr() {
-                            checkSize > 5 ? checkSize -= 5 : checkSize = 5;
-                            redrawFrame();
-                        }
-                        function rotateCheckLeft() {
-                            checkSize > 5 ? checkSize -= 5 : checkSize = 5;
-                            drawBaseImage();
-                        }
-
-                        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-                            $("#canvas").mousedown(function(e){tap(e);});
-                        }
-                        else {
-                            $("#canvas").mousedown(function(e){handleMouseDown(e);});
-                            $("#canvas").mousemove(function(e){handleMouseMove(e);});
-                            $("#canvas").mouseup(function(e){handleMouseUp(e);});
-                            $("#canvas").mouseout(function(e){handleMouseOut(e);});
-                        }
-                        document.getElementById('makeBigger').onclick = makeCheckBigger;
-                        document.getElementById('makeSmaller').onclick = makeCheckSmallerr;
-                        document.getElementById('back').onclick = toggleSlider;
-
-                        // REGION  END EXPERIMEnT
+                    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                        $("#canvas").mousedown(function(e){tap(e);});
                     }
+                    else {
+                        $("#canvas").mousedown(function(e){handleMouseDown(e);});
+                        $("#canvas").mousemove(function(e){handleMouseMove(e);});
+                        $("#canvas").mouseup(function(e){handleMouseUp(e);});
+                        $("#canvas").mouseout(function(e){handleMouseOut(e);});
+                    }
+                    document.getElementById('makeBigger').onclick = makeCheckBigger;
+                    document.getElementById('makeSmaller').onclick = makeCheckSmaller;
+                    document.getElementById('back').onclick = toggleCanvasWorkPage;
+                    document.getElementById('changeMark').onclick = changeCheckMark;
+                    document.getElementById('download').onclick = download_img;
 
-                    reader.readAsDataURL(input.files[0]); // convert to base64 string
+                    // function declarations
+                    function handleMouseDown(e){
+                        // set the drag flag
+                        isDragging=true;
+                    }
+                    function handleMouseUp(e){
+                        isDragging=false;
+                    }
+                    function handleMouseOut(e){
+                        canMouseX=parseInt(e.clientX-offsetX);
+                        canMouseY=parseInt(e.clientY-offsetY);
+                        // user has left the canvas, so clear the drag flag
+                        //isDragging=false;
+                    }
+                    function handleMouseMove(e){
+                        console.log('handleMouseMove', isDragging);
+                        // canMouseX=parseInt(e.clientX-offsetX);
+                        // canMouseY=parseInt(e.clientY-offsetY);
+                        // canMouseX=parseInt(e.clientX);
+                        // canMouseY=parseInt(e.clientY);
+                        lastMouseCoordsX = e.offsetX;
+                        lastMouseCoordsY = e.offsetY;
+                        // if the drag flag is set, clear the canvas and draw the image
+                        if(isDragging){
+                            drawBaseImage();
+                        }
+                    }
+                    function tap(e) {
+                        ctx.clearRect(0,0,canvasWidth,canvasHeight);
+                        drawBaseImage();
+                        lastMouseCoordsY = e.offsetY - img.clientHeight / 2;
+                        lastMouseCoordsX = e.offsetX - img.clientWidth / 2;
+                        drawCheck(lastMouseCoordsX, lastMouseCoordsY);
+                    }
+                    function drawCheck(x=0, y=0){
+                        ctx.drawImage(img, x, y, checkSize, checkSize);
+                    }
+                    function drawBaseImage(){
+                        ctx.clearRect(0,0,canvasWidth,canvasHeight);
+                        proportion =  base_image.width / base_image.height;
+                        deformationRate = base_image.width / window.outerWidth;
+                        console.log(deformationRate);
+                        canvas.width = window.outerWidth;
+                        canvas.height = window.outerWidth / proportion;
+                        ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  canvas.width, canvas.height);
+                        // ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
+                        // img.style.transform = 'rotate(90deg)';
+                        // img.translate.valueOf(12);
+                        // ctx.drawImage(img,lastMouseCoordsX,lastMouseCoordsY,checkSize, checkSize);
+                    }
+                    function redrawFrame(){
+                        drawBaseImage();
+                        drawCheck(lastMouseCoordsX, lastMouseCoordsY);
+                    }
+                    function makeCheckBigger() {
+                        checkSize += 5;
+                        redrawFrame();
+                    }
+                    function makeCheckSmaller() {
+                        checkSize > 5 ? checkSize -= 5 : checkSize = 5;
+                        redrawFrame();
+                    }
+                    function intCheckMarkSrc(){
+                        let idOfCheck = Math.floor(Math.random() * (13 - 1)) + 1;
+                        img.src = 'img/check_mark_' + idOfCheck +'.png';
+                    }
+                    function changeCheckMark() {
+                        intCheckMarkSrc();
+                        redrawFrame();
+                    }
+                    function download_img() {
+                        debugger;
+                        canvas.height = base_image.height;
+                        canvas.width = base_image.width;
+                        ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
+                        ctx.drawImage(img, lastMouseCoordsX * deformationRate, lastMouseCoordsY * deformationRate, checkSize * deformationRate, checkSize * deformationRate);
+                        document.getElementById('download').href = canvas.toDataURL("image/jpg");
+                        toggleThankYouPage();
+                    }
                 }
             }
-            function toggleSlider(){
-                $('.first').toggleClass('animate');
+            // class Slider {
+            //     currentPage = 0;
+            //     next(){
+            //
+            //     }
+            //     back(){
+            //
+            //     }
+            // }
+            // currentPage =
+            function toggleCanvasWorkPage(){
+                this.currentPage = 0;
+                if(this.currentPage === 0) {
+                    $('.first').toggleClass('animate');
+                    $('.second').toggleClass('animate');
+                    this.currentPage = 0;
+                }
+                if(this.currentPage === 0) {
+                    $('.first').toggleClass('animate');
+                    $('.second').toggleClass('animate');
+                    this.currentPage = 0;
+                }
+
+            }
+            function toggleThankYouPage(){
                 $('.second').toggleClass('animate');
+                $('.third').toggleClass('animate');
             }
             $("#imgInp").change(function() {
-                toggleSlider();
-                readURL(this);
+                toggleCanvasWorkPage();
+                goToWorkWithCanvasState(this);
             });
-        }); // end $(function(){});
-        download_img = function(el) {
-            var canvas=document.getElementById("canvas");
-
-            // canvas.height = '1280px';
-            // canvas.width = '1920px';
-            const image = canvas.toDataURL("image/jpg");
-            el.href = image;
-        };
+        });
     </script>
 
 </head>
@@ -179,21 +194,14 @@
 <body>
 
 <div class="container-fluid">
-<!--    <div class="row">-->
-<!--        <form runat="server">-->
-<!--            <input type='file' id="imgInp" />-->
-<!--        </form>-->
-<!--        <canvas id="canvas" width=400 height=300></canvas>-->
-<!--        <a id="download" download="myImage.jpg" onclick="download_img(this);">Download to myImage.jpg</a>-->
-<!--    </div>-->
-
     <div class="content">
         <div style="display: flex; justify-content: space-between">
             <span id="back">НАЗАД</span>
         </div>
-        <div class="first" style="display: flex;
-  justify-content: center;
-  align-items: center;">
+        <div class="first" style="
+            display: flex;
+            justify-content: center;
+            align-items: center;">
             <div>
                 <h3>Выберите Фотографию биллютеня</h3>
                 <form runat="server">
@@ -203,8 +211,34 @@
 
         </div>
         <div class="second">
-            <div style="overflow-y: auto; width: 90vw; height: 50%">
+            <div style="overflow-y: auto;">
                 <canvas id="canvas" width=400 height=300></canvas>
+            </div>
+            <div class="control-pannel">
+                <span>Операции с галочкой: </span>
+                <button class="btn btn-warning" id="makeBigger">
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">-->
+<!--                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>-->
+<!--                    </svg>-->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-angle-expand" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/>
+                    </svg>
+                </button>
+
+                <button class="btn btn-warning" id="makeSmaller">
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="33" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">-->
+<!--                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>-->
+<!--                    </svg>-->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-angle-contract" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z"/>
+                    </svg>
+                </button>
+                <button class="btn btn-warning" id="changeMark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shuffle" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.624 9.624 0 0 0 7.556 8a9.624 9.624 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.595 10.595 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.624 9.624 0 0 0 6.444 8a9.624 9.624 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192z"/>
+                    </svg>
+                </button>
             </div>
 
             <h4>ИНСТРУКЦИЯ :</h4>
@@ -220,17 +254,11 @@
                 <div style="text-align: left">
                     <span>✔Скачайте "обновлённый" бюллетень</span>
                 </div>
-            <a id="download" class="btn btn-primary" download="myImage.jpg" onclick="download_img(this);">Скачать</a>
+            <a id="download" class="btn btn-primary" download="myImage.jpg">Скачать</a>
 
-            <div class="sticky control-pannel">
-                <div id="makeBigger"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-plus-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-                </svg></div>
-                <div id="makeSmaller"><svg  width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-dash-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
-                </svg></div>
-            </div>
+
         </div>
+        <div class="third">Spasibo</div>
     </div>
 
 </div>
