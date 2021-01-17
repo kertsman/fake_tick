@@ -4,7 +4,7 @@
     overflow:hidden;
     position: relative;
 }
-.first, .second {
+.first, .second, .third {
     min-height: 100vh;
     width: auto;
     text-align: center;

@@ -34,6 +34,7 @@
                 reader.readAsDataURL(input.files[0]); // convert to base64 string
                 function userInsertedBulletin(e) {
                     // REGION  START EXPERIMEnT
+                    toggleWorkWithBuletinPage();
                     canvas=document.getElementById("canvas");
                     ctx=canvas.getContext("2d");
 
@@ -69,7 +70,7 @@
                     }
                     document.getElementById('makeBigger').onclick = makeCheckBigger;
                     document.getElementById('makeSmaller').onclick = makeCheckSmaller;
-                    document.getElementById('back').onclick = toggleCanvasWorkPage;
+                    document.getElementById('back').onclick = returnToPreviousPage;
                     document.getElementById('changeMark').onclick = changeCheckMark;
                     document.getElementById('download').onclick = download_img;
 
@@ -144,7 +145,6 @@
                         redrawFrame();
                     }
                     function download_img() {
-                        debugger;
                         canvas.height = base_image.height;
                         canvas.width = base_image.width;
                         ctx.drawImage(base_image, 0, 0, base_image.width, base_image.height, 0,0,  base_image.width, base_image.height);
@@ -154,36 +154,29 @@
                     }
                 }
             }
-            // class Slider {
-            //     currentPage = 0;
-            //     next(){
-            //
-            //     }
-            //     back(){
-            //
-            //     }
-            // }
-            // currentPage =
-            function toggleCanvasWorkPage(){
-                this.currentPage = 0;
-                if(this.currentPage === 0) {
-                    $('.first').toggleClass('animate');
-                    $('.second').toggleClass('animate');
-                    this.currentPage = 0;
-                }
-                if(this.currentPage === 0) {
-                    $('.first').toggleClass('animate');
-                    $('.second').toggleClass('animate');
-                    this.currentPage = 0;
-                }
+            let currentPage = 0;
+            function returnToPreviousPage(){
+                if ( currentPage === 0) {return}
+                if ( currentPage === 1) {
+                    toggleWorkWithBuletinPage();
 
+                }
+                if ( currentPage === 2) {
+                    toggleThankYouPage();
+                }
             }
             function toggleThankYouPage(){
                 $('.second').toggleClass('animate');
                 $('.third').toggleClass('animate');
+                currentPage = currentPage === 2 ? 1 : 2;
+            }
+            function toggleWorkWithBuletinPage(){
+                $('.first').toggleClass('animate');
+                $('.second').toggleClass('animate');
+                currentPage = currentPage === 1 ? 0 : 1;
             }
             $("#imgInp").change(function() {
-                toggleCanvasWorkPage();
+                returnToPreviousPage();
                 goToWorkWithCanvasState(this);
             });
         });
@@ -258,7 +251,15 @@
 
 
         </div>
-        <div class="third">Spasibo</div>
+        <div class="third" style="
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 100%">
+            <H3>Спасибо</H3>
+            <a href="index2.html"> На главную</a>
+        </div>
     </div>
 
 </div>
